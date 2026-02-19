@@ -1,0 +1,2 @@
+-- Placeholder migration restored to satisfy Prisma migration history.
+-- No schema changes were applied in this migration.

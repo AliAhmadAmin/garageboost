@@ -1,0 +1,832 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      String   @default("GARAGE_OWNER")
+  passwordHash String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  garages   Garage[] @relation("GarageOwners")
+  staffProfile Staff? @relation("UserStaff")
+  webPushSubscriptions WebPushSubscription[]
+}
+
+model Garage {
+  id         String        @id @default(cuid())
+  name       String
+  ownerName  String
+  slug       String?       @unique
+  plan       String        @default("professional")  // starter, professional, business
+  status     String        @default("TRIAL")         // TRIAL, ACTIVE, SUSPENDED, CANCELLED
+  trialEndsAt DateTime?                              // When trial expires
+  revenuePence Int         @default(0)
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+
+  // Public directory profile
+  isPublic   Boolean       @default(true)
+  shortDescription String?
+  services   String?
+  specialties String?
+  certifications String?
+  amenities  String?
+  city       String?
+  county     String?
+  openingHours String?
+  logoUrl    String?
+  
+  // Public contact information
+  postcode   String?
+  address    String?
+  latitude   Float?
+  longitude  Float?
+  phone      String?
+  email      String?
+  website    String?
+  description String?
+  vatEnabled Boolean       @default(true)
+  
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  ownerId    String?
+  staff      Staff[]
+  inventoryItems InventoryItem[]
+  inventoryTransactions InventoryTransaction[]
+  expenses   Expense[]
+  owner      User?         @relation("GarageOwners", fields: [ownerId], references: [id])
+  vehicles   Vehicle[]
+  customers  Customer[]    @relation("GarageCustomers")
+  quotes     Quote[]
+  images     GarageImage[]
+  inquiries  GarageInquiry[]
+  reviews    Review[]
+  bookableServices Service[] @relation("GarageServices")
+  healthChecks HealthCheck[]
+  campaigns  Campaign[]
+  reminderConfig ReminderConfig?
+  emailQueueJobs EmailQueueJob[]
+  webPushSubscriptions WebPushSubscription[]
+  jobs       Job[]     // Add jobs relation
+  payments  GaragePayment[]
+}
+
+model GaragePayment {
+  id                     String   @id @default(cuid())
+  amountPence            Int
+  currency               String   @default("gbp")
+  stripeInvoiceId        String   @unique
+  stripePaymentIntentId  String?
+  paidAt                 DateTime
+  createdAt              DateTime @default(now())
+
+  garageId               String
+  garage                 Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([garageId])
+  @@index([paidAt])
+}
+
+model GarageImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  garageId  String
+  garage    Garage   @relation(fields: [garageId], references: [id])
+
+  @@index([garageId])
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  name      String
+  role      String   // e.g. Mechanic, Receptionist, Manager
+  accessRole String  @default("TECHNICIAN")
+  jobTitle  String?
+  employmentType String? // FULL_TIME, PART_TIME, CONTRACTOR
+  startDate DateTime?
+  hourlyRatePence Int?
+  phone     String?
+  email     String?
+  avatarUrl String?  // Profile photo URL
+  active    Boolean  @default(true)
+  notes     String?
+  permissions String? // JSON array of permission keys
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String?  @unique
+  user      User?    @relation("UserStaff", fields: [userId], references: [id])
+
+  garageId  String
+  garage    Garage   @relation(fields: [garageId], references: [id])
+
+  bookings  Booking[]
+  jobs      Job[]    @relation("StaffJobs")
+}
+
+model InventoryItem {
+  id              String   @id @default(cuid())
+  name            String
+  sku             String?
+  category        String?
+  brand           String?
+  location        String?
+  supplier        String?
+  unitCostPence   Int      @default(0)
+  unitPricePence  Int      @default(0)
+  quantityOnHand  Int      @default(0)
+  reorderLevel    Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  garageId        String
+  garage          Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  transactions    InventoryTransaction[]
+
+  @@index([garageId])
+  @@index([sku])
+  @@index([category])
+  @@index([isActive])
+}
+
+model InventoryTransaction {
+  id              String   @id @default(cuid())
+  type            String   // RECEIPT, ISSUE, ADJUSTMENT
+  quantity        Int
+  unitCostPence   Int?
+  reference       String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  garageId        String
+  garage          Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([garageId])
+  @@index([inventoryItemId])
+  @@index([type])
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  title         String
+  category      String
+  amountPence   Int
+  taxPence      Int      @default(0)
+  vendor        String?
+  paymentMethod String?  // CASH, CARD, BANK_TRANSFER, DIRECT_DEBIT, OTHER
+  status        String   @default("PAID") // PAID, PENDING, CANCELLED
+  incurredAt    DateTime
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  garageId      String
+  garage        Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([garageId])
+  @@index([category])
+  @@index([incurredAt])
+  @@index([status])
+}
+
+model GarageInquiry {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+
+  garageId  String
+  garage    Garage   @relation(fields: [garageId], references: [id])
+
+  @@index([garageId])
+  @@index([status])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 stars
+  title     String
+  content   String
+  
+  // Customer details
+  customerName String
+  customerEmail String @unique
+  
+  // Moderation
+  status    String   @default("PENDING")  // PENDING, APPROVED, REJECTED
+  response  String?  // Garage owner response
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  garageId  String
+  garage    Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([garageId])
+  @@index([status])
+  @@index([rating])
+}
+
+model GarageSignup {
+  id                 String   @id @default(cuid())
+  name               String
+  email              String
+  phone              String
+  passwordHash       String?
+  emailVerified      Boolean  @default(false)
+  phoneVerified      Boolean  @default(false)
+  emailToken         String?
+  emailTokenExpires  DateTime?
+  phoneOtp           String?
+  phoneOtpExpires    DateTime?
+
+  garageName         String?
+  postcode           String?
+  address            String?
+  businessType       String?
+  
+  selectedPlan       String?  // starter, professional, business
+
+  proofPhotoUrl      String?
+  proofCardUrl       String?
+  companyNumber      String?
+
+  status             String   @default("PENDING")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+}
+
+model Customer {
+  id         String      @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  notes      String?
+  emailOptOut Boolean    @default(false)
+  smsOptOut  Boolean     @default(false)
+  unsubscribedAt DateTime?
+  unsubscribeToken String?  @unique
+  lastCampaignSentAt DateTime?
+  source     String?     @default("GARAGE")  // GARAGE, ONLINE_BOOKING, LOOKUP, IMPORT
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  garageId   String
+  garage     Garage      @relation("GarageCustomers", fields: [garageId], references: [id], onDelete: Cascade)
+  vehicles   Vehicle[]
+  campaignRecipients CampaignRecipient[]
+  emailQueueJobs EmailQueueJob[]
+
+  @@index([garageId])
+  @@index([email])
+  @@unique([garageId, email])  // Prevent duplicate customers per garage
+  @@index([emailOptOut])
+  @@index([smsOptOut])
+}
+
+model Vehicle {
+  id         String      @id @default(cuid())
+  vrm        String
+  make       String
+  model      String
+  motExpiry  DateTime
+  ownerName  String
+  ownerPhone String?
+  ownerEmail String?
+  lastService DateTime?
+  mileage    Int?
+  
+  // RFL (Road Tax) tracking
+  taxExpiry   DateTime?
+  taxStatus   String?    // Taxed, SORN, Untaxed
+  // Vehicle type approval (e.g., M1)
+  typeApproval String?
+  
+  // Battery tracking
+  batteryInstallDate  DateTime?
+  batteryBrand        String?
+  batteryVoltage      Float?      // 12.6V = 100%, 12.0V = 20%
+  batteryCCA          Int?        // Cold Cranking Amps
+  batteryHealth       Int?        // 0-100%
+  batteryLastChecked  DateTime?
+  
+  // Tyre tracking
+  tyreFrontLeftDepth  Float?      // mm (1.6mm legal min)
+  tyreFrontRightDepth Float?
+  tyreRearLeftDepth   Float?
+  tyreRearRightDepth  Float?
+  tyreSize            String?     // 205/55R16
+  tyreBrand           String?
+  tyreLastChecked     DateTime?
+  
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  garageId   String
+  garage     Garage      @relation(fields: [garageId], references: [id])
+  
+  customerId String?
+  customer   Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  
+  advisories Advisory[]
+  reminders  Reminder[]
+  jobs       Job[]
+  quotes     Quote[]
+  recalls    Recall[]
+  healthChecks HealthCheck[]
+
+  @@index([garageId])
+  @@index([customerId])
+  @@index([taxExpiry])
+}
+
+model Advisory {
+  id        String   @id @default(cuid())
+  text      String
+  category  String
+  estPricePence Int
+  createdAt DateTime @default(now())
+
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+}
+
+model Recall {
+  id            String   @id @default(cuid())
+  vrm           String
+  make          String
+  model         String
+  buildDateFrom String?
+  buildDateTo   String?
+  recallTitle   String
+  description   String
+  risk          String   // HIGH, MEDIUM, LOW
+  remedy        String
+  issuedDate    DateTime
+  notified      Boolean  @default(false)
+  notifiedAt    DateTime?
+  createdAt     DateTime @default(now())
+  
+  vehicleId     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  
+  @@index([vehicleId])
+  @@index([notified])
+}
+
+model HealthCheck {
+  id              String   @id @default(cuid())
+  checkNumber     String   @unique  // HC-2026-001
+  checkedBy       String   // Mechanic name
+  createdAt       DateTime @default(now())
+  
+  vehicleId       String
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  
+  garageId        String
+  garage          Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  
+  items           HealthCheckItem[]
+  pdfUrl          String?  // Generated PDF URL
+  emailedAt       DateTime?
+  customerViewed  Boolean  @default(false)
+  
+  @@index([vehicleId])
+  @@index([garageId])
+}
+
+model HealthCheckItem {
+  id              String   @id @default(cuid())
+  category        String   // Safety, Service, Advisory
+  item            String   // 'Front Brake Pads', 'Battery', etc.
+  status          String   // red, amber, green
+  notes           String?
+  estimatedCost   Int?     // pence
+  urgency         String   // immediate, soon, monitor
+  createdAt       DateTime @default(now())
+  
+  healthCheckId   String
+  healthCheck     HealthCheck @relation(fields: [healthCheckId], references: [id], onDelete: Cascade)
+  
+  @@index([healthCheckId])
+}
+
+model Reminder {
+  id          String   @id @default(cuid())
+  channel     String
+  status      String
+  scheduledFor DateTime?
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+}
+
+model WebPushSubscription {
+  id         String   @id @default(cuid())
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  garageId   String
+  garage     Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([garageId])
+}
+
+model ReminderConfig {
+  id             String   @id @default(cuid())
+  garageId       String   @unique
+  motDaysCsv     String   @default("30,14,7")
+  taxDaysCsv     String   @default("30,14,7")
+  serviceMonthsCsv String @default("")
+  motEnabled     Boolean  @default(true)
+  taxEnabled     Boolean  @default(true)
+  serviceEnabled Boolean  @default(false)
+  emailNotifications Boolean @default(true)
+  weeklyReports   Boolean  @default(true)
+  reminderSent    Boolean  @default(true)
+  jobUpdates      Boolean  @default(true)
+  bookingRequests Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  garage         Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([garageId])
+}
+
+model Campaign {
+  id            String   @id @default(cuid())
+  name          String
+  subject       String?
+  channel       String   // EMAIL, SMS (SMS future)
+  message       String
+  status        String   @default("DRAFT") // DRAFT, SCHEDULED, SENDING, COMPLETED, FAILED
+  targetAudience String  @default("all")
+  scheduledFor  DateTime?
+  sentCount     Int      @default(0)
+  failedCount   Int      @default(0)
+  skippedCount  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  garageId     String
+  garage       Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  recipients   CampaignRecipient[]
+
+  @@index([garageId])
+  @@index([status])
+  @@index([scheduledFor])
+}
+
+model CampaignRecipient {
+  id         String   @id @default(cuid())
+  status     String   @default("PENDING") // PENDING, SENT, FAILED, SKIPPED
+  sentAt     DateTime?
+  errorMessage String?
+  createdAt  DateTime @default(now())
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model EmailQueueJob {
+  id            String   @id @default(cuid())
+  garageId      String
+  customerId    String?
+  campaignId    String?
+  recipientEmail String
+  recipientName String?
+  subject       String
+  message       String
+  status        String   @default("PENDING") // PENDING, PROCESSING, RETRY, SENT, FAILED
+  attempts      Int      @default(0)
+  maxAttempts   Int      @default(5)
+  lastError     String?
+  scheduledFor  DateTime @default(now())
+  processingAt  DateTime?
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  garage        Garage   @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([status, scheduledFor])
+  @@index([garageId])
+  @@index([campaignId])
+  @@index([recipientEmail])
+}
+
+model ApiConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique  // e.g., "DVLA_API_KEY", "DVSA_API_KEY", "STRIPE_SECRET_KEY"
+  value     String   // Encrypted API key value
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  jobNumber       String    @unique  // e.g., "JOB-2026-001"
+  type            String    // MOT, SERVICE, REPAIR, DIAGNOSTIC
+  status          String    @default("TODO")  // Simplified: TODO, DOING, DONE
+  description     String?
+  bookedDate      DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  estimatedHours  Float?
+  actualHours     Float?
+  laborRate       Int       @default(5000)  // £50.00 per hour in pence
+  laborTotal      Int       @default(0)     // Total labor cost in pence
+  partsTotal      Int       @default(0)     // Total parts cost in pence
+  vatRate         Float     @default(20.0)  // VAT percentage
+  discountPence   Int       @default(0)     // Discount in pence
+  totalPence      Int       @default(0)     // Final total in pence
+  notes           String?
+  bookingId       String?   @unique  // Reference to online booking if converted
+  source          String?   @default("GARAGE")  // GARAGE, ONLINE_BOOKING, QUOTE
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  vehicleId       String
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  garageId        String
+  garage          Garage    @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  assignedToId    String?   // Assigned mechanic
+  assignedTo      Staff?    @relation("StaffJobs", fields: [assignedToId], references: [id], onDelete: SetNull)
+  items           JobItem[]
+  invoice         Invoice?
+  quotes          Quote[]
+
+  @@index([garageId])
+  @@index([vehicleId])
+  @@index([status])
+  @@index([assignedToId])
+}
+
+model JobItem {
+  id              String   @id @default(cuid())
+  type            String   // PART, LABOR, SERVICE
+  name            String
+  description     String?
+  quantity        Float    @default(1)
+  unitPricePence  Int      // Price per unit in pence
+  totalPence      Int      // quantity * unitPrice
+  supplierCost    Int?     // Cost price for profit margin calculation
+  partNumber      String?
+  fromInventory   Boolean  @default(false)  // Was this pulled from inventory?
+  inventoryItemId String?  // Link to inventory item
+  createdAt       DateTime @default(now())
+
+  jobId           String
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([inventoryItemId])
+}
+
+model Invoice {
+  id              String    @id @default(cuid())
+  invoiceNumber   String    @unique  // e.g., "INV-2026-001"
+  status          String    @default("UNPAID")  // UNPAID, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED
+  issuedDate      DateTime  @default(now())
+  dueDate         DateTime
+  paidDate        DateTime?
+  subtotalPence   Int       // Before VAT
+  vatPence        Int       // VAT amount
+  totalPence      Int       // Final amount
+  paidPence       Int       @default(0)  // Amount paid so far
+  balancePence    Int       // Remaining balance
+  paymentMethod   String?   // CASH, CARD, BANK_TRANSFER, STRIPE
+  stripePaymentId String?
+  notes           String?
+  source          String?   @default("GARAGE")  // GARAGE, ONLINE_BOOKING
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  jobId           String    @unique
+  job             Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  payments        Payment[]
+  quote           Quote?    @relation("InvoiceToQuote")
+
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Quote {
+  id              String    @id @default(cuid())
+  quoteNumber     String    @unique  // e.g., "QT-2026-001"
+  status          String    @default("DRAFT")  // DRAFT, SENT, ACCEPTED, DECLINED, EXPIRED
+  issuedDate      DateTime  @default(now())
+  expiryDate      DateTime
+  acceptedDate    DateTime?
+  declinedDate    DateTime?
+  declineReason   String?
+  
+  subtotalPence   Int       // Before VAT
+  vatRate         Float     @default(20.0)  // VAT percentage applied at quote creation
+  vatPence        Int       // VAT amount
+  totalPence      Int       // Final amount
+  
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  notes           String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  vehicleId       String
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  
+  garageId        String
+  garage          Garage    @relation(fields: [garageId], references: [id])
+  
+  jobId           String?   // Optional: can convert to job later
+  job             Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  
+  invoiceId       String?   @unique
+  invoice         Invoice?  @relation("InvoiceToQuote", fields: [invoiceId], references: [id], onDelete: SetNull)
+  
+  items           QuoteItem[]
+  activities      QuoteActivity[]
+
+  @@index([status])
+  @@index([garageId])
+  @@index([vehicleId])
+  @@index([expiryDate])
+}
+
+model QuoteItem {
+  id              String   @id @default(cuid())
+  type            String   // MOT, ADVISORY, SERVICE, LABOR, PART
+  name            String
+  description     String?
+  quantity        Float    @default(1)
+  unitPricePence  Int      // Price per unit in pence
+  totalPence      Int      // quantity * unitPrice
+  createdAt       DateTime @default(now())
+
+  quoteId         String
+  quote           Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+}
+
+model QuoteActivity {
+  id              String   @id @default(cuid())
+  action          String   // CREATED, SENT, VIEWED, ACCEPTED, DECLINED, EXPIRED
+  timestamp       DateTime @default(now())
+  details         String?  // Additional context
+  
+  quoteId         String
+  quote           Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@index([quoteId])
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  amountPence     Int
+  method          String   // CASH, CARD, BANK_TRANSFER, STRIPE
+  reference       String?
+  stripePaymentId String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  invoiceId       String
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model Service {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  category        String    // MOT, SERVICE, REPAIR, DIAGNOSTIC, TYRES, BRAKES, etc.
+  durationMinutes Int       @default(60)  // Estimated duration
+  pricePence      Int       // Service price in pence
+  
+  // Deposit settings
+  depositRequired Boolean   @default(false)
+  depositPence    Int       @default(0)    // Deposit amount in pence
+  
+  isActive        Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  garageId        String
+  garage          Garage    @relation("GarageServices", fields: [garageId], references: [id], onDelete: Cascade)
+  
+  bookings        Booking[]
+
+  @@index([garageId])
+  @@index([category])
+  @@index([isActive])
+}
+
+model Booking {
+  id                    String    @id @default(cuid())
+  bookingNumber         String    @unique  // e.g., "BK-2026-001"
+  status                String    @default("PENDING")  // PENDING, CONFIRMED, CANCELLED, COMPLETED, NO_SHOW
+  
+  // Customer details
+  customerName          String
+  customerEmail         String
+  customerPhone         String
+  
+  // Vehicle details (optional - might not have vehicle in system yet)
+  vehicleVrm            String?
+  vehicleMake           String?
+  vehicleModel          String?
+  
+  // Booking details
+  bookingDate           DateTime  // Date of appointment
+  bookingTime           String    // Time slot, e.g., "09:00", "14:30"
+  notes                 String?
+  
+  // Payment details
+  depositPaid           Boolean   @default(false)
+  depositPence          Int       @default(0)
+  stripePaymentIntentId String?
+  stripePaymentStatus   String?   // requires_payment_method, requires_confirmation, succeeded, etc.
+  
+  // Confirmation details
+  confirmedAt           DateTime?
+  cancelledAt           DateTime?
+  cancellationReason    String?
+  completedAt           DateTime?
+  
+  // Conversion to job
+  jobId                 String?   @unique
+  convertedToJob        Boolean   @default(false)
+  
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  garageId              String
+  serviceId             String
+  
+  service               Service   @relation(fields: [serviceId], references: [id])
+  staffId               String?
+  staff                 Staff?    @relation(fields: [staffId], references: [id], onDelete: SetNull)
+
+  @@index([garageId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([bookingDate])
+  @@index([customerEmail])
+}
