@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Garage Boost Open Graph Image">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect x="88" y="88" width="92" height="92" rx="18" fill="#2563eb" />
+  <path d="M126 103 110 134h17l-4 29 37-41h-17l4-19z" fill="#fff" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>
+  <text x="210" y="145" fill="#ffffff" font-size="58" font-family="Arial, Helvetica, sans-serif" font-weight="700">Garage Boost</text>
+  <text x="90" y="260" fill="#dbeafe" font-size="48" font-family="Arial, Helvetica, sans-serif" font-weight="700">AI-Powered MOT Management Software</text>
+  <text x="90" y="320" fill="#bfdbfe" font-size="34" font-family="Arial, Helvetica, sans-serif">Increase garage revenue with DVSA-integrated reminders and CRM</text>
+  <rect x="90" y="380" width="340" height="58" rx="29" fill="#1e40af" stroke="#93c5fd" stroke-width="2"/>
+  <text x="122" y="418" fill="#ffffff" font-size="26" font-family="Arial, Helvetica, sans-serif" font-weight="700">Trusted by UK Garages</text>
+  <text x="90" y="536" fill="#e2e8f0" font-size="28" font-family="Arial, Helvetica, sans-serif">garage.bizzboost.uk</text>
+</svg>

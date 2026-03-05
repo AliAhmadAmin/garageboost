@@ -31,6 +31,7 @@ export default function FeaturedGarages() {
   const [garages, setGarages] = useState<Garage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     const fetchGarages = async () => {
@@ -56,8 +57,8 @@ export default function FeaturedGarages() {
     fetchGarages();
   }, []);
 
-  // Fallback garages if no real garages exist
-  const displayGarages = garages.length > 0 ? garages : [
+  // Fallback garages only for local development
+  const fallbackGarages: Garage[] = [
     {
       id: "1",
       name: "Urban Garage",
@@ -115,6 +116,7 @@ export default function FeaturedGarages() {
       image: null,
     },
   ];
+  const displayGarages = garages.length > 0 ? garages : isDevelopment ? fallbackGarages : [];
 
   const handleCardClick = (garage: Garage) => {
     router.push(`/garages/${garage.slug || garage.id}`);
@@ -134,8 +136,13 @@ export default function FeaturedGarages() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayGarages.map((garage) => {
+        {loading ? (
+          <div className="text-center text-slate-600">Loading garages...</div>
+        ) : displayGarages.length === 0 ? (
+          <div className="text-center text-slate-600">No garages available yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {displayGarages.map((garage) => {
             const firstImage = garage.image;
 
             return (
@@ -241,8 +248,9 @@ export default function FeaturedGarages() {
                 </div>
               </div>
             );
-          })}
-        </div>
+            })}
+          </div>
+        )}
 
         <div className="text-center mt-12">
           <button

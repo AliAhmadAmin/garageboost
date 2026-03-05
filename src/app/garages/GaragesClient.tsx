@@ -172,9 +172,9 @@ export default function GaragesClient() {
             {/* Enhanced Search Section */}
             <div className="max-w-3xl mx-auto">
               {/* Main Search Bar */}
-              <div className="bg-white rounded-2xl shadow-2xl p-3 mb-6">
+              <div className="bg-white rounded-2xl shadow-2xl p-2 mb-6">
                 <div className="relative">
-                  <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400" size={24} />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
                   <input
                     type="text"
                     value={searchTerm}
@@ -183,15 +183,15 @@ export default function GaragesClient() {
                       if (e.target.value) clearLocation();
                     }}
                     placeholder="Search by garage name, city, or area..."
-                    className="w-full pl-16 pr-14 py-5 rounded-xl text-slate-900 text-lg font-medium focus:outline-none focus:ring-4 focus:ring-blue-200"
+                    className="w-full pl-12 pr-12 py-3.5 rounded-xl text-slate-900 text-base font-medium focus:outline-none focus:ring-4 focus:ring-blue-200"
                   />
                   <button
                     onClick={handleFindNearest}
                     disabled={findingLocation}
-                    className="absolute right-5 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors disabled:opacity-50 cursor-pointer"
                     title="Use my location"
                   >
-                    <MapPin size={24} />
+                    <MapPin size={20} />
                   </button>
                 </div>
               </div>

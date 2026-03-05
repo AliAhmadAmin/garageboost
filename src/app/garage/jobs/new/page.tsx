@@ -35,6 +35,10 @@ interface InventoryItem {
   reorderLevel: number;
 }
 
+interface Garage {
+  id: string;
+}
+
 // Predefined items for quick selection
 const COMMON_LABOR = [
   { name: "Labor - Diagnostic", price: 5000 }, // £50
@@ -289,14 +293,36 @@ export default function NewJobPage() {
 
   const loadData = async () => {
     try {
-      const garagesRes = await fetch("/api/garages");
-      const garages = await garagesRes.json();
-      const garage = garages[0];
-      setGarageId(garage?.id || null);
+      let resolvedGarage: Garage | null = null;
+      const storedGarage = typeof window !== "undefined"
+        ? localStorage.getItem("garage-data")
+        : null;
 
-      if (garage) {
+      if (storedGarage) {
+        try {
+          const parsed = JSON.parse(storedGarage) as Garage;
+          if (parsed?.id) {
+            const garageRes = await fetch(`/api/garages/${parsed.id}`);
+            if (garageRes.ok) {
+              resolvedGarage = await garageRes.json();
+            }
+          }
+        } catch (error) {
+          console.warn("Failed to parse stored garage data:", error);
+        }
+      }
+
+      if (!resolvedGarage) {
+        const garageRes = await fetch("/api/garages/me");
+        const garageData: Garage | { error?: string } = await garageRes.json();
+        resolvedGarage = "id" in garageData ? garageData : null;
+      }
+
+      setGarageId(resolvedGarage?.id || null);
+
+      if (resolvedGarage) {
         // Load vehicles with no-cache to ensure fresh data
-        const vehiclesRes = await fetch(`/api/vehicles?garageId=${garage.id}`, {
+        const vehiclesRes = await fetch(`/api/vehicles?garageId=${resolvedGarage.id}`, {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-cache' },
         });
@@ -304,12 +330,12 @@ export default function NewJobPage() {
         setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
 
         // Load staff (mechanics)
-        const staffRes = await fetch(`/api/garages/${garage.id}/staff`);
+        const staffRes = await fetch(`/api/garages/${resolvedGarage.id}/staff`);
         const staffData = await staffRes.json();
         setStaff(staffData.staff?.filter((s: Staff) => s.active) || []);
 
         // Load inventory
-        const inventoryRes = await fetch(`/api/garages/${garage.id}/inventory?activeOnly=true`);
+        const inventoryRes = await fetch(`/api/garages/${resolvedGarage.id}/inventory?activeOnly=true`);
         const inventoryData = await inventoryRes.json();
         setInventory(inventoryData.items || []);
       }

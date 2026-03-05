@@ -1,0 +1,3 @@
+{
+  "/api/campaigns/queue-status/route": "app/api/campaigns/queue-status/route.js"
+}

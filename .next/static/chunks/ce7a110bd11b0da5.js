@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,75549,t=>{"use strict";var e=t.i(18566);function r(){return(0,e.redirect)("/garage/staff"),null}t.s(["default",()=>r])}]);

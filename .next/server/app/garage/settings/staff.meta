@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/garage/layout,_N_T_/garage/settings/layout,_N_T_/garage/settings/staff/layout,_N_T_/garage/settings/staff/page,_N_T_/garage/settings/staff"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/garage/settings/staff/__PAGE__",
+    "/garage/settings/staff",
+    "/garage/settings",
+    "/garage",
+    "/_index",
+    "/_head"
+  ]
+}

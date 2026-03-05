@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,49676,e=>{"use strict";var t=e.i(18566);function r(){return(0,t.redirect)("/garage/expenses"),null}e.s(["default",()=>r])}]);

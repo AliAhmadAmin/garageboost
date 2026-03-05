@@ -93,7 +93,12 @@ export default function DashboardPage() {
       }
 
       try {
-        await fetch("/api/seed", { method: "POST" });
+        if (
+          process.env.NODE_ENV === "development" &&
+          process.env.NEXT_PUBLIC_ENABLE_AUTO_SEED === "true"
+        ) {
+          await fetch("/api/seed", { method: "POST", credentials: "include" });
+        }
         let resolvedGarage: Garage | null = null;
         const storedGarage = typeof window !== "undefined"
           ? localStorage.getItem("garage-data")

@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/garage-software/layout,_N_T_/garage-software/liverpool/layout,_N_T_/garage-software/liverpool/page,_N_T_/garage-software/liverpool"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/garage-software/liverpool/__PAGE__",
+    "/garage-software/liverpool",
+    "/garage-software",
+    "/_index",
+    "/_head"
+  ]
+}

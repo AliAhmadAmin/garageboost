@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /admin
+Disallow: /garage
+
+Sitemap: https://garage.bizzboost.uk/sitemap.xml

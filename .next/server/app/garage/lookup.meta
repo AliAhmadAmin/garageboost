@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/garage/layout,_N_T_/garage/lookup/layout,_N_T_/garage/lookup/page,_N_T_/garage/lookup"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/garage/lookup/__PAGE__",
+    "/garage/lookup",
+    "/garage",
+    "/_index",
+    "/_head"
+  ]
+}

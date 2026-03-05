@@ -1,0 +1,3 @@
+{
+  "/api/garages/[id]/bookings/[bookingId]/convert-to-job/route": "app/api/garages/[id]/bookings/[bookingId]/convert-to-job/route.js"
+}

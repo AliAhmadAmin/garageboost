@@ -1,0 +1,3 @@
+{
+  "/api/garages/public/[slug]/services/route": "app/api/garages/public/[slug]/services/route.js"
+}

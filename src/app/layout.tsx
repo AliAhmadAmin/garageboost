@@ -7,6 +7,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://garageboost.co.uk";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "AI-Powered MOT Management Software for UK Garages | Garage Boost",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg"],
+    apple: ["/favicon.svg"],
+  },
   description: "Increase garage revenue by 40% with Garage Boost. DVSA-integrated MOT reminder software with automated reminders, customer CRM, smart quotes, and complete garage management. Free trial for UK garages.",
   keywords: [
     "MOT software UK",
@@ -41,11 +46,11 @@ export const metadata: Metadata = {
     siteName: "Garage Boost",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "Garage Boost - MOT Management Software for UK Garages",
-        type: "image/png",
+        type: "image/svg+xml",
       },
     ],
   },
@@ -53,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AI-Powered MOT Management Software for UK Garages | Garage Boost",
     description: "Increase garage revenue by 40% with DVSA-integrated MOT reminder software, customer CRM, and garage management tools.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,

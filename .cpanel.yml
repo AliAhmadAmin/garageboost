@@ -1,4 +1,0 @@
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/subhanallah/garage.bizzboost.uk
-    - /usr/bin/rsync -a --delete --exclude='.git' ./ $DEPLOYPATH/

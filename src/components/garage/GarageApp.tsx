@@ -181,7 +181,7 @@ const Dashboard = ({ vehicles, setActiveTab, garage, analytics }: { vehicles: Ve
               <Clock size={20} className="text-amber-700" />
             </div>
             <div>
-              <p className="font-bold text-amber-900">7 days left in your free trial</p>
+              <p className="font-bold text-amber-900">14 days left in your free trial</p>
               <p className="text-sm text-amber-700">
                 Upgrade now to unlock unlimited features and SMS reminders
               </p>
@@ -576,7 +576,12 @@ export default function GarageApp() {
 
   useEffect(() => {
     const load = async () => {
-      await fetch("/api/seed", { method: "POST" });
+      if (
+        process.env.NODE_ENV === "development" &&
+        process.env.NEXT_PUBLIC_ENABLE_AUTO_SEED === "true"
+      ) {
+        await fetch("/api/seed", { method: "POST", credentials: "include" });
+      }
       let resolvedGarage: Garage | null = null;
       const storedGarage = typeof window !== "undefined"
         ? localStorage.getItem("garage-data")
@@ -911,7 +916,7 @@ export default function GarageApp() {
                         {garage?.plan ? `${getPlanLabel(garage.plan)} Plan` : "Starter Plan"}
                       </p>
                       <p className="text-xs text-blue-700">
-                        {garage?.status === "TRIAL" ? "7 days left. Full features unlocked." : "Active subscription"}
+                        {garage?.status === "TRIAL" ? "14 days left. Full features unlocked." : "Active subscription"}
                       </p>
                     </div>
                   </div>

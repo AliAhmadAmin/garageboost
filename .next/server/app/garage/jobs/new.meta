@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/garage/layout,_N_T_/garage/jobs/layout,_N_T_/garage/jobs/new/layout,_N_T_/garage/jobs/new/page,_N_T_/garage/jobs/new"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/garage/jobs/new/__PAGE__",
+    "/garage/jobs/new",
+    "/garage/jobs",
+    "/garage",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -6,7 +6,7 @@ export function generateOrganizationSchema() {
     "@type": "Organization",
       name: "Garage Boost",
     url: "https://garageboost.co.uk",
-    logo: "https://garageboost.co.uk/logo.png",
+    logo: "https://garageboost.co.uk/logo.svg",
     description: "AI-powered MOT management and garage software for UK garages",
     sameAs: [
       "https://www.linkedin.com/company/bizz-boost/",
@@ -50,7 +50,7 @@ export function generateSoftwareApplicationSchema() {
     operatingSystem: "Web",
     browserRequirements: "Requires JavaScript",
     url: "https://garageboost.co.uk",
-    image: "https://garageboost.co.uk/og-image.png",
+    image: "https://garageboost.co.uk/og-image.svg",
     author: {
       "@type": "Organization",
       name: "Bizz Boost Ltd",
@@ -80,8 +80,7 @@ export function generateSoftwareApplicationSchema() {
       worstRating: "1",
     },
     screenshot: [
-      "https://garageboost.co.uk/screenshot-1.png",
-      "https://garageboost.co.uk/screenshot-2.png",
+      "https://garageboost.co.uk/og-image.svg",
     ],
   };
 }
@@ -92,7 +91,7 @@ export function generateLocalBusinessSchema() {
     "@type": "LocalBusiness",
     "@id": "https://garageboost.co.uk",
       name: "Garage Boost",
-    image: "https://garageboost.co.uk/logo.png",
+    image: "https://garageboost.co.uk/logo.svg",
     description:
       "MOT management and garage software based in London, serving UK garages",
     address: {
@@ -106,7 +105,7 @@ export function generateLocalBusinessSchema() {
     telephone: "07380 448187",
     email: "cs@bizzboost.uk",
     url: "https://garageboost.co.uk",
-    logo: "https://garageboost.co.uk/logo.png",
+    logo: "https://garageboost.co.uk/logo.svg",
     priceRange: "£0 - £99",
     sameAs: [
       "https://www.linkedin.com/company/garageboost",
@@ -160,7 +159,7 @@ export function generateProductSchema(productName: string, price: string, descri
     "@context": "https://schema.org/",
     "@type": "Product",
     name: productName,
-    image: "https://garageboost.co.uk/og-image.png",
+    image: "https://garageboost.co.uk/og-image.svg",
     description: description,
     brand: {
       "@type": "Brand",
@@ -191,7 +190,7 @@ export function generateArticleSchema(
     "@type": "NewsArticle",
     headline: title,
     description: description,
-    image: image || "https://garageboost.co.uk/og-image.png",
+    image: image || "https://garageboost.co.uk/og-image.svg",
     datePublished: datePublished,
     author: {
       "@type": "Organization",
@@ -203,7 +202,7 @@ export function generateArticleSchema(
       name: "Garage Boost",
       logo: {
         "@type": "ImageObject",
-        url: "https://garageboost.co.uk/logo.png",
+        url: "https://garageboost.co.uk/logo.svg",
       },
     },
   };

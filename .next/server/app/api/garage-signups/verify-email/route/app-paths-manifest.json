@@ -1,0 +1,3 @@
+{
+  "/api/garage-signups/verify-email/route": "app/api/garage-signups/verify-email/route.js"
+}

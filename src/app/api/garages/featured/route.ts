@@ -11,7 +11,9 @@ export async function GET() {
       where: {
         isPublic: true,
         name: { not: "" },
-        status: "ACTIVE",
+        status: {
+          in: ["ACTIVE", "TRIAL", "active", "trial"],
+        },
       },
       select: {
         id: true,

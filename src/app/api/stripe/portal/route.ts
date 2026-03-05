@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/prisma';
 import { getSessionFromRequest } from '@/lib/session';
+import { getAppBaseUrl } from '@/lib/app-url';
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,10 +34,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const appBaseUrl = getAppBaseUrl(req);
+
     // Create billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: garage.stripeCustomerId,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/garage/settings/plan`,
+      return_url: `${appBaseUrl}/garage/settings/plan`,
     });
 
     return NextResponse.json({ url: portalSession.url });

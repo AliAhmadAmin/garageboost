@@ -219,7 +219,7 @@ export async function POST(req: NextRequest) {
         const amountPaid = invoice.amount_paid ?? 0;
         const paidAtUnix = invoice.status_transitions?.paid_at;
         const paidAt = paidAtUnix ? new Date(paidAtUnix * 1000) : new Date();
-        const paymentIntentId = invoice.payment_intent ? String(invoice.payment_intent) : null;
+        const paymentIntentId = (invoice as any).payment_intent ? String((invoice as any).payment_intent) : null;
         const currency = invoice.currency || "gbp";
 
         await prisma.$transaction([

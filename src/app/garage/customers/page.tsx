@@ -180,7 +180,7 @@ export default function CRMPage() {
       }
     };
     loadData();
-  }, [addToast]);
+  }, []);
 
   const handleDeleteVehicle = async (customerId: string, vehicleId: string) => {
     if (!confirm("⚠️ Remove this vehicle?\n\nThe customer and their other vehicles (if any) will remain in your system.")) return;

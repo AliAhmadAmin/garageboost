@@ -1,0 +1,3 @@
+{
+  "/api/email-queue/process/route": "app/api/email-queue/process/route.js"
+}

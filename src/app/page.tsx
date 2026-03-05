@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "Garage Boost",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "Garage Boost - MTD Revenue Software for UK Garages",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: "AI-Powered MOT Management Software for UK Garages | Garage Boost",
     description:
       "Increase garage revenue by 40%. DVSA-integrated MOT reminder software, CRM, and smart quotes.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,
