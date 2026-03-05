@@ -3,6 +3,10 @@
 # ensure we are in the right directory
 cd /home/subhanallah/repositories/garageboost || exit 1
 
+# discard any uncommitted changes; builds should never be committed
+git reset --hard HEAD
+git clean -fdx
+
 # update from remote
 git pull --rebase origin master || exit 1
 
@@ -17,7 +21,13 @@ npm run build || exit 1
 if command -v pm2 >/dev/null 2>&1; then
   pm2 restart garageboost || pm2 start npm --name garageboost -- start
 else
-  echo "pm2 not found, installing globally"
-  npm install -g pm2
-  pm2 restart garageboost || pm2 start npm --name garageboost -- start
+  echo "pm2 not found; trying npx-installed pm2"
+  # if the global install is not permitted, fall back to npx
+  if npx pm2 --version >/dev/null 2>&1; then
+    npx pm2 restart garageboost || npx pm2 start npm --name garageboost -- start
+  else
+    echo "installing pm2 locally as workaround"
+    npm install pm2 --save-dev || echo "failed to install pm2"
+    npx pm2 restart garageboost || npx pm2 start npm --name garageboost -- start
+  fi
 fi
