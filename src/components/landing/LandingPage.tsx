@@ -12,7 +12,7 @@ export default function LandingPage() {
       <section className="py-12 md:py-20 px-4 md:px-6 text-center max-w-5xl mx-auto">
         <Badge variant="blue">🇬🇧 UK Only • DVSA Integrated • Trusted by 500+ Garages</Badge>
         <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold mt-6 leading-tight">
-          Turn MOT data into <span className="text-blue-600">booked jobs</span>
+          Turn MOT data into <span className="text-blue-600">booked jobs</span> (TEST CHANGE)
         </h1>
         <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mt-6 leading-relaxed max-w-3xl mx-auto">
           Garage Boost automatically scans your customer&apos;s MOT history, identifies upcoming expiries
